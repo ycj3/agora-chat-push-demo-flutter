@@ -1,4 +1,4 @@
-import 'ppackage:push_demo/firebase_options.dart';
+import 'package:push_demo/firebase_options.dart';
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
