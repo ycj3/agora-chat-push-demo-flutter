@@ -1,16 +1,31 @@
-# push_demo
+# Agora Chat Push Demo flutter 
 
-A new Flutter project.
+## Prerequisites
+
+* FlutterFire CLI: Install the FlutterFire CLI if you haven't already:
+
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+1. Clone this repository
+```
+git clone https://github.com/CarlsonYuan/agora-chat-push-demo-flutter.git
+```
+2. Navigate to the project directory
+```
+cd agora-chat-push-demo-flutter
+```
+3. Initialize Firebase
+```
+flutterfire configure
+```
+4. Open the lib/consts.dart file. Replace the placeholders with your actual Firebase and Agora credentials.
+5. Ensure Firebase dependencies are added
+```
+flutter pub get
+```
+6. Run the app
+```
+flutter run
+```
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
