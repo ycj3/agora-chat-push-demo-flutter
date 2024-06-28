@@ -68,4 +68,21 @@ class PushManager {
     }
     return settings.authorizationStatus == AuthorizationStatus.authorized;
   }
+
+  static Future<bool> registerPushToken() async {
+    if (kIsWeb) return false;
+
+    final messaging = FirebaseMessaging.instance;
+    String? token = await messaging.getToken();
+
+    if (kDebugMode) {
+      print('Registration Token=$token');
+    }
+    if (token != null) {
+      await ChatClient.getInstance.pushManager.updateFCMPushToken(token);
+      return true;
+    }
+    return false;
+  }
+
 }

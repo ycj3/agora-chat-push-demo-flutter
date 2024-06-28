@@ -36,6 +36,7 @@ class _LoginPageState extends State<LoginPage> {
           userId,
           token,
         );
+        await PushManager.registerPushToken();
       } catch (e) {
         if (kDebugMode) {
           print('login failed : $e');
