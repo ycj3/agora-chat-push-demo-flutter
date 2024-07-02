@@ -1,31 +1,22 @@
 # Agora Chat Push Demo flutter 
 
-## Prerequisites
+| Platform | Foreground Notifications | Background Notifications |
+|----------|----------|----------|
+| Android | ![Android Foreground](./screenshots/android_foreground.png) | ![Android Background](./screenshots/android_background.png)  |
+| iOS | ![iOS Foreground](./screenshots/iOS_foreground.PNG) | ![iOS Foreground](./screenshots/iOS_background.PNG) |
 
-* FlutterFire CLI: Install the FlutterFire CLI if you haven't already:
+## Requirements
 
+* Flutter 3.19.0 or later
+* Dart 3.3.0 or later
+* FlutterFire CLI   
+  Install the FlutterFire CLI `dart pub global activate flutterfire_cli`
 
 ## Getting Started
 
-1. Clone this repository
-```
-git clone https://github.com/CarlsonYuan/agora-chat-push-demo-flutter.git
-```
-2. Navigate to the project directory
-```
-cd agora-chat-push-demo-flutter
-```
-3. Initialize Firebase
-```
-flutterfire configure
-```
-4. Open the lib/consts.dart file. Replace the placeholders with your actual Firebase and Agora credentials.
-5. Ensure Firebase dependencies are added
-```
-flutter pub get
-```
-6. Run the app
-```
-flutter run
-```
-
+1. Clone the repository.
+2. Navigate to the project directory.
+3. Initialize Firebase with `flutterfire configure`.
+4. Update `lib/consts.dart` with your Firebase and Agora Chat credentials.
+5. Install dependencies with `flutter pub get`.
+6. Run the app using `flutter run`.
