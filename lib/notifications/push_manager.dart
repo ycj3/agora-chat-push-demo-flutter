@@ -1,8 +1,12 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:push_demo/firebase_options.dart';
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:push_demo/notifications/local_notifications_manager.dart';
 
 class PushManager {
   static Future<void> initialize() async {
@@ -25,13 +29,23 @@ class PushManager {
     });
 
     // Set up foreground message handler
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       if (kDebugMode) {
         print('Handling a foreground message: ${message.messageId}');
         print('Message data: ${message.data}');
         print('Message notification: ${message.notification?.title}');
         print('Message notification: ${message.notification?.body}');
-      }      
+      }
+
+      final agoraChat = message.data['EPush'] as Map<Object?, Object?>?;
+      if (agoraChat!= null ) {
+        await LocalNotificationsManager.showNotification(
+          title: message.notification?.title as String,
+          body: message.notification?.body,
+          payload: jsonEncode(agoraChat),
+        );
+      }
+      
     });
 
     // Set up background message handler
@@ -79,7 +93,15 @@ class PushManager {
       print('Registration Token=$token');
     }
     if (token != null) {
-      await ChatClient.getInstance.pushManager.updateFCMPushToken(token);
+      try {
+        if (Platform.isIOS) {
+          await ChatClient.getInstance.pushManager.updateAPNsDeviceToken(token);
+        } else {
+          await ChatClient.getInstance.pushManager.updateFCMPushToken(token);
+        }
+      } on ChatError catch (e) {
+        debugPrint("bind fcm token error: ${e.code}, desc: ${e.description}");
+      }
       return true;
     }
     return false;

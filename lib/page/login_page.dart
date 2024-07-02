@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +30,7 @@ class _LoginPageState extends State<LoginPage> {
       ChatOptions options = ChatOptions(
           appKey: AgoraChatConfig.appKey, autoLogin: false, debugModel: true);
       options.enableFCM(AgoraChatConfig.fcmSenderID);
+      options.enableAPNs(AgoraChatConfig.fcmSenderID);
       await ChatClient.getInstance.init(options);
 
       /// connect to Chat Server
