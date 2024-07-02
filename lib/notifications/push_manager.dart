@@ -30,20 +30,30 @@ class PushManager {
 
     // Set up foreground message handler
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      if (kDebugMode) {
-        print('Handling a foreground message: ${message.messageId}');
-        print('Message data: ${message.data}');
-        print('Message notification: ${message.notification?.title}');
-        print('Message notification: ${message.notification?.body}');
-      }
+      
+      debugPrint('Handling a foreground message: ${message.messageId}');
+      debugPrint('Message data: ${message.data}');
+      debugPrint('Message notification: ${message.notification?.title}');
+      debugPrint('Message notification: ${message.notification?.body}');
 
-      final agoraChat = message.data['EPush'] as Map<Object?, Object?>?;
-      if (agoraChat!= null ) {
-        await LocalNotificationsManager.showNotification(
-          title: message.notification?.title as String,
-          body: message.notification?.body,
-          payload: jsonEncode(agoraChat),
-        );
+      if (Platform.isAndroid) {
+        final agoraChat = jsonDecode(message.data['EPush'] as String);
+        if (agoraChat != null) {
+          await LocalNotificationsManager.showNotification(
+            title: message.notification?.title as String,
+            body: message.notification?.body,
+            payload: message.data['EPush'] as String,
+          );
+        }
+      } else if (Platform.isIOS) {
+        final agoraChat = message.data['EPush'] as Map<Object?, Object?>?;
+        if (agoraChat!= null ) {
+          await LocalNotificationsManager.showNotification(
+            title: message.notification?.title as String,
+            body: message.notification?.body,
+            payload: Platform.isIOS ? jsonEncode(agoraChat): agoraChat as String,
+          );
+        }
       }
       
     });
