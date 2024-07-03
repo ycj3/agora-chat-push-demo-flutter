@@ -7,7 +7,7 @@
 
 ## Requirements
 
-* Flutter 3.19.0 or later
+* Flutter 3.16.0 or later
 * Dart 3.3.0 or later
 * FlutterFire CLI   
   Install the FlutterFire CLI `dart pub global activate flutterfire_cli`
