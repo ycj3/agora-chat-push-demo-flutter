@@ -18,13 +18,21 @@ class PushManager {
 
     // Register with FCM
     // It requests a registration token for sending messages to users from your App server or other trusted server environment.
-    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
+    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
       if (kDebugMode) {
-        print('Registration fcmToken=$newToken');
+        print('Refresh registration fcmToken=$newToken');
       }
       if (ChatClient.getInstance.currentUserId != null) {
         // register the FCM token for the user
-        ChatClient.getInstance.pushManager.updateFCMPushToken(newToken);
+        if (Platform.isIOS) {
+            await ChatClient.getInstance.pushManager.updateAPNsDeviceToken(
+                newToken,
+            );
+        } else if (Platform.isAndroid) {
+            await ChatClient.getInstance.pushManager.updateFCMPushToken(
+                newToken,
+            );
+        }
       }
     });
 
@@ -36,22 +44,25 @@ class PushManager {
       debugPrint('Message notification: ${message.notification?.title}');
       debugPrint('Message notification: ${message.notification?.body}');
 
-      if (Platform.isAndroid) {
+      
+      // Check if the value is a Map or String before using it
+      if (message.data['EPush'] is Map) {
+        final agoraChat = message.data['EPush'] as Map<Object?, Object?>?;
+        if (agoraChat != null) {
+          await LocalNotificationsManager.showNotification(
+            title: message.notification?.title ?? '',
+            body: message.notification?.body ?? '',
+            payload: jsonEncode(agoraChat), // Encode it as a String for payload
+          );
+        }
+      } else if (message.data['EPush'] is String) {
+        // If it's a String, decode it to a Map first
         final agoraChat = jsonDecode(message.data['EPush'] as String);
         if (agoraChat != null) {
           await LocalNotificationsManager.showNotification(
-            title: message.notification?.title as String,
-            body: message.notification?.body,
+            title: message.notification?.title ?? '',
+            body: message.notification?.body ?? '',
             payload: message.data['EPush'] as String,
-          );
-        }
-      } else if (Platform.isIOS) {
-        final agoraChat = message.data['EPush'] as Map<Object?, Object?>?;
-        if (agoraChat!= null ) {
-          await LocalNotificationsManager.showNotification(
-            title: message.notification?.title as String,
-            body: message.notification?.body,
-            payload: Platform.isIOS ? jsonEncode(agoraChat): agoraChat as String,
           );
         }
       }
@@ -105,8 +116,15 @@ class PushManager {
     if (token != null) {
       try {
         if (Platform.isIOS) {
+          if (kDebugMode) {
+            print('Update FCM Token=$token to Agora Chat server for APNs platform');
+          }
           await ChatClient.getInstance.pushManager.updateAPNsDeviceToken(token);
-        } else {
+
+        } else if (Platform.isAndroid) {
+          if (kDebugMode) {
+            print('Update FCM Token=$token to Agora Chat server for other platforms');
+          }
           await ChatClient.getInstance.pushManager.updateFCMPushToken(token);
         }
       } on ChatError catch (e) {
