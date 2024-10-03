@@ -1,11 +1,10 @@
-import 'dart:io';
-
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:push_demo/consts.dart';
 import 'package:push_demo/notifications/push_manager.dart';
+import 'package:logging/logging.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -19,6 +18,21 @@ class _LoginPageState extends State<LoginPage> {
       TextEditingController(text: AgoraChatConfig.userId);
   final TextEditingController _tokenController =
       TextEditingController(text: AgoraChatConfig.userToken);
+
+  bool _isLoggedIn = false;
+  // Create a logger instance
+  final Logger _logger = Logger('LoginPageLogger');
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Configure logger to log to the console
+    Logger.root.level = Level.ALL;
+    _logger.onRecord.listen((LogRecord record) {
+      debugPrint('${record.level.name}: ${record.time}: ${record.message}');
+    });
+  }
 
   void _login() async {
     String userId = _userIdController.text;
@@ -40,10 +54,12 @@ class _LoginPageState extends State<LoginPage> {
           token,
         );
         await PushManager.registerPushToken();
+        setState(() {
+          _isLoggedIn = true;
+        });
+        _logger.info('User logged in successfully.');
       } catch (e) {
-        if (kDebugMode) {
-          print('login failed : $e');
-        }
+        _logger.warning('Failed login : $e');
       }
     } else {
       Fluttertoast.showToast(
@@ -52,6 +68,20 @@ class _LoginPageState extends State<LoginPage> {
         toastLength: Toast.LENGTH_LONG,
       );
     }
+  }
+
+  void _logout() async {
+      /// disconnect to Chat Server
+      bool isUnBindDeviceToken = true;
+      try {
+        await ChatClient.getInstance.logout(isUnBindDeviceToken);
+        setState(() {
+          _isLoggedIn = false;
+        });
+        _logger.info('User logged out. Unregisterd device token status is: $isUnBindDeviceToken');
+      } catch (e) {
+        _logger.warning('Failed logout : $e');
+      }
   }
 
   @override
@@ -79,9 +109,20 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _login,
-              child: const Text('Login'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,  // Align buttons to left and right
+              children: <Widget>[
+                if (!_isLoggedIn)
+                  ElevatedButton(
+                    onPressed: _login,
+                    child: const Text('Login'),
+                  ),
+                if (_isLoggedIn)
+                  ElevatedButton(
+                    onPressed: _logout,
+                    child: const Text('Logout'),
+                  ),
+              ],
             ),
           ],
         ),
