@@ -20,3 +20,12 @@
 4. Update `lib/consts.dart` with your Firebase and Agora Chat credentials.
 5. Install dependencies with `flutter pub get`.
 6. Run the app using `flutter run`.
+
+## Testing if Push Notifications are Setup Correctly
+After configuring [agora-chat-cli](https://github.com/ycj3/agora-chat-cli), run the following command using your user ID:
+```
+agchat push test --user <user-id>
+```
+
+You should get a test push notification 🍺
+
