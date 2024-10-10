@@ -1,10 +1,11 @@
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:push_demo/agora-chat/message/message.dart';
 import 'package:push_demo/consts.dart';
 import 'package:push_demo/notifications/push_manager.dart';
 import 'package:logging/logging.dart';
+import 'package:push_demo/notifications/local_notifications_manager.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -47,6 +48,9 @@ class _LoginPageState extends State<LoginPage> {
       options.enableAPNs(AgoraChatConfig.fcmSenderID);
       await ChatClient.getInstance.init(options);
 
+      /// add message listenter
+      MessageManager().addMessageHandler(_handleIncomingMessage);
+
       /// connect to Chat Server
       try {
         await ChatClient.getInstance.loginWithAgoraToken(
@@ -82,6 +86,25 @@ class _LoginPageState extends State<LoginPage> {
       } catch (e) {
         _logger.warning('Failed logout : $e');
       }
+  }
+
+  Future<void> _handleIncomingMessage(ChatMessage message) async {
+    _logger.warning("Message received: ${message.body.toString()}");
+    
+    if (message.body is ChatTextMessageBody) {
+      ChatTextMessageBody body = message.body as ChatTextMessageBody;
+      await LocalNotificationsManager.showNotification(
+        title: message.from,
+        body: body.content,
+        payload: '',
+      );
+    } else {
+      await LocalNotificationsManager.showNotification(
+        title: message.from,
+        body: 'Other message types content',
+        payload: '',
+      );
+    }
   }
 
   @override
