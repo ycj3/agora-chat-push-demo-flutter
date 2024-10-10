@@ -29,3 +29,21 @@ agchat push test --user <user-id>
 
 You should get a test push notification 🍺
 
+## Foreground Notifications
+This project uses `flutter_local_notifications` to implement foreground notifications.
+### Usage
+1. Initialization:
+Initialize the `LocalNotificationsManager` in your app:
+```
+LocalNotificationsManager.initialize();
+```
+
+2. Show Notification:
+```
+LocalNotificationsManager.showNotification(
+  title: 'Test Title',
+  body: 'Test Body',
+  payload: 'Test payload',
+);
+```
+Find the full implementation in [local_notifications_manager.dart](https://github.com/ycj3/agora-chat-push-demo-flutter/blob/main/lib/notifications/local_notifications_manager.dart).
