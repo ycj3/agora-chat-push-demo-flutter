@@ -109,7 +109,9 @@ class PushManager {
 
     final messaging = FirebaseMessaging.instance;
     String? token = await messaging.getToken();
-
+    if (Platform.isIOS) {
+      token = await messaging.getAPNSToken();
+    }
     if (kDebugMode) {
       print('Registration Token=$token');
     }

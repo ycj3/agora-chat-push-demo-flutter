@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -44,8 +46,13 @@ class _LoginPageState extends State<LoginPage> {
       /// initialize Chat SDK
       ChatOptions options = ChatOptions(
           appKey: AgoraChatConfig.appKey, autoLogin: false, debugModel: true);
-      options.enableFCM(AgoraChatConfig.fcmSenderID);
-      options.enableAPNs(AgoraChatConfig.fcmSenderID);
+      if (Platform.isIOS) {
+        options.enableAPNs(AgoraChatConfig.apnsCertName);
+      } else if (Platform.isAndroid) {
+        options.enableFCM(AgoraChatConfig.fcmSenderID);
+      } else {
+        _logger.warning("Unsupported platform");
+      }
       await ChatClient.getInstance.init(options);
 
       /// add message listenter
