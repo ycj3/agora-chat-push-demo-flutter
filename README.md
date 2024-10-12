@@ -47,3 +47,35 @@ LocalNotificationsManager.showNotification(
 );
 ```
 Find the full implementation in [local_notifications_manager.dart](https://github.com/ycj3/agora-chat-push-demo-flutter/blob/main/lib/notifications/local_notifications_manager.dart).
+
+## Sending push notifications directly via APNs
+### Using Firebase Messaging
+1. APNs Certificate setting
+```
+import 'package:agora_chat_sdk/agora_chat_sdk.dart';
+
+ChatOptions options = ChatOptions(
+    appKey: AgoraChatConfig.appKey, autoLogin: false, debugModel: true);
+if (Platform.isIOS) {
+  options.enableAPNs(AgoraChatConfig.apnsCertName);
+}
+ChatClient.getInstance.init(options);
+```
+2. APNs Token Retrieval
+```
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+String? token = messaging.getToken();
+if (Platform.isIOS) {
+  token = await messaging.getAPNSToken();
+}
+```
+3. Send this token to the Chat server
+```
+import 'package:agora_chat_sdk/agora_chat_sdk.dart';
+
+if (Platform.isIOS) {
+  ChatClient.getInstance.pushManager.updateAPNsDeviceToken(token);
+}
+```
+You can find the full implementaion in the `feat/apns` branch.
