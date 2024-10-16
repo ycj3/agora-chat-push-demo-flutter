@@ -131,7 +131,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _sendVideoMessage() async {
-    File videoFile = await loadAssetVideoToLocalStorage(
+    File videoFile = await loadAssetsToLocalStorage(
         'resources/VID_20241011_175609.mp4', 'VID_20241011_175609.mp4');
     _logger.warning("file path :${videoFile.path}");
 
@@ -187,7 +187,63 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future<File> loadAssetVideoToLocalStorage(
+  Future<void> _sendImageMessage() async {
+    try {
+      File imageFile = await loadAssetsToLocalStorage(
+          'resources/IMG_4714.JPG', 'IMG_4714.JPG');
+      _logger.warning("file path :${imageFile.path}");
+        if (!await imageFile.exists()) {
+          throw Exception("Image file does not exist.");
+        }
+
+      String imgPath = imageFile.path;
+      double imgWidth = 100;
+      double imgHeight = 100;
+      String imgName = "image.jpg";
+      int imgSize = 3000;
+      ChatMessage msg = ChatMessage.createImageSendMessage(
+          targetId: "demo_user_3",
+          filePath: imgPath,
+          // width: imgWidth,
+          // height: imgHeight,
+          displayName: imgName,
+          chatType: ChatType.Chat,
+          fileSize: imgSize,
+      );
+
+      ChatClient.getInstance.chatManager.sendMessage(msg).then((value) {
+        _logger.warning("sendMessage");
+      });
+    } catch (e) {
+      _logger.warning("Failed to send image message: $e");
+    }
+    ChatClient.getInstance.chatManager.addMessageEvent(
+      "UNIQUE_HANDLER_ID",
+      ChatMessageEvent(
+        // Occurs when the message sending succeeds. You can update the message and add other operations in this callback.
+        onSuccess: (msgId, msg) {
+          _logger.warning("onSuccess");
+          // msgId: The pre-sending message ID.
+          // msg: The message that is sent successfully.
+        },
+        // Occurs when the message sending fails. You can update the message status and add other operations in this callback.
+        onError: (msgId, msg, error) {
+          _logger.warning("onError: $error");
+          // msgId: The pre-sending message ID.
+          // msg: The message that fails to be sent.
+          // error: The error description.
+        },
+        // For attachment messages such as image, voice, file, and video, you can get a progress value for uploading or downloading them in this callback.
+        onProgress: (msgId, progress) {
+          _logger.warning("onProgress: $progress");
+          // msgId: The pre-sending message ID.
+          // progress: The sending progress.
+        },
+      ),
+    );
+  }
+
+  Future<File> loadAssetsToLocalStorage(
       String assetPath, String fileName) async {
     // Load the video file from assets
     final byteData = await rootBundle.load(assetPath);
@@ -247,8 +303,13 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 20),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
+                IconButton(
+                  icon: const Icon(Icons.image),
+                  onPressed: _sendImageMessage,
+                  tooltip: 'Send Image Message',
+                ),
                 IconButton(
                   icon: const Icon(Icons.video_call),
                   onPressed: _sendVideoMessage,
